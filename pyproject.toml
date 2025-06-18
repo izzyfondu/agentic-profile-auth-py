@@ -1,6 +1,6 @@
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "agentic-profile-auth"
@@ -63,4 +63,7 @@ warn_unused_configs = true
 
 [tool.ruff]
 line-length = 100
-target-version = "py38" 
+target-version = "py38"
+
+[tool.pip]
+index-url = "https://pypi.org/simple" 
