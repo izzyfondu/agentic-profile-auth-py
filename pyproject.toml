@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "agentic-profile-auth"
-version = "0.1.1"
+version = "0.1.2"
 description = "Agentic Profile Authentication Library"
 authors = [
     { name = "Mike Prince" },
@@ -37,15 +37,6 @@ Homepage = "https://github.com/yourusername/agentic-profile-auth"
 Repository = "https://github.com/yourusername/agentic-profile-auth.git"
 Documentation = "https://agentic-profile-auth.readthedocs.io/"
 
-[tool.hatch.build.targets.wheel]
-packages = ["src/agentic_profile_auth"]
-
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = ["test_*.py"]
-asyncio_mode = "auto"
-addopts = "-v --tb=short"
-
 [project.optional-dependencies]
 test = [
     "pytest>=7.0.0",
@@ -53,6 +44,12 @@ test = [
     "pytest-cov>=4.1.0",
     "pytest-mock>=3.10.0"
 ]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+asyncio_mode = "auto"
+addopts = "-v --tb=short"
 
 [tool.mypy]
 python_version = "3.8"
