@@ -141,7 +141,11 @@ class HttpDidResolver(DidResolver):
                 }
             
             # Convert DIDDocument to AgenticProfile
-            profile = AgenticProfile(**result["didDocument"])
+            did_document = result["didDocument"]
+            if isinstance(did_document, AgenticProfile):
+                profile = did_document
+            else:
+                profile = AgenticProfile(**did_document)
             return profile, {}
             
         except Exception as e:

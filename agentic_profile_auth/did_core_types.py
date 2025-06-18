@@ -5,6 +5,7 @@
 from typing import Any, Dict, List, Optional, Union, Callable, Awaitable, Tuple
 from dataclasses import dataclass, field
 import re
+from loguru import logger
 
 Extensible = Dict[str, Any]
 
@@ -125,7 +126,7 @@ ID_CHAR = f'(?:[a-zA-Z0-9._-]|{PCT_ENCODED})'
 METHOD = r'([a-z0-9]+)'
 METHOD_ID = f'((?:{ID_CHAR}*:)*({ID_CHAR}+))'
 PARAM_CHAR = r'[a-zA-Z0-9_.:%-]'
-PARAM = f';{PARAM_CHAR}+= {PARAM_CHAR}*'
+PARAM = f';{PARAM_CHAR}+={PARAM_CHAR}*'
 PARAMS = f'(({PARAM})*)'
 PATH = r'(/[^#?]*)?'
 QUERY = r'([?][^#]*)?'
@@ -184,11 +185,29 @@ def as_did_resolution_result(did_document, content_type="application/json"):
 
 async def resolver_cache(store, parsed: ParsedDID, resolve: Callable[[], Awaitable[DIDResolutionResult]]) -> DIDResolutionResult:
     if parsed.params and parsed.params.get('no-cache') == 'true':
+        logger.debug(f"Bypassing cache for {parsed.did}")
         return await resolve()
     profile = await store.load_agentic_profile(parsed.did)
     if profile:
-        return as_did_resolution_result(profile)
+        logger.debug(f"Cache hit for {parsed.did}")
+        # Convert AgenticProfile to dict if needed
+        if hasattr(profile, 'model_dump'):
+            profile_dict = profile.model_dump()
+        else:
+            profile_dict = profile
+        return as_did_resolution_result(profile_dict)
+    logger.debug(f"Cache miss for {parsed.did}, resolving...")
     result = await resolve()
     if not getattr(result.get('didResolutionMetadata', {}), 'error', None) and result.get('didDocument'):
-        await store.save_agentic_profile(result['didDocument'])
+        # Convert dict to AgenticProfile if needed
+        did_document = result['didDocument']
+        if isinstance(did_document, dict):
+            from .models import AgenticProfile
+            profile = AgenticProfile(**did_document)
+        else:
+            profile = did_document
+        logger.debug(f"Saving profile for {parsed.did}")
+        await store.save_agentic_profile(profile)
+    else:
+        logger.debug(f"Not saving profile for {parsed.did}, error or missing document.")
     return result 

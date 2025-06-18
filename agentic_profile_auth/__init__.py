@@ -9,7 +9,8 @@ from .models import (
     ClientAgentSessionUpdates,
     DID,
     FragmentID,
-    UserID
+    UserID,
+    InMemoryAgenticProfileStore
 )
 
 from .ed25519 import verify, create_key_pair
@@ -32,6 +33,19 @@ from .server_authentication import (
     AGENTIC_CHALLENGE_TYPE
 )
 
+from .web_did_resolver import (
+    WebDidResolver,
+    get_web_resolver,
+    web_did_to_url,
+    select_protocol
+)
+
+from .did_resolver import (
+    HttpDidResolver,
+    create_did_resolver,
+    ResolverRegistry
+)
+
 __version__ = "0.6.0"
 
 __all__ = [
@@ -47,10 +61,18 @@ __all__ = [
     "DID",
     "FragmentID",
     "UserID",
+    "InMemoryAgenticProfileStore",
     
     # Protocols
     "ClientAgentSessionStore",
     "DidResolver",
+    "ResolverRegistry",
+    
+    # Resolvers
+    "HttpDidResolver",
+    "WebDidResolver",
+    "create_did_resolver",
+    "get_web_resolver",
     
     # Functions
     "verify",
@@ -59,6 +81,8 @@ __all__ = [
     "handle_authorization",
     "validate_auth_token",
     "resolve_verification_method",
+    "web_did_to_url",
+    "select_protocol",
     
     # Utilities
     "base64_to_base64url",
