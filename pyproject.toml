@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "agentic-profile-auth"
-version = "0.1.0"
+version = "0.1.1"
 description = "Agentic Profile Authentication Library"
 authors = [
     { name = "Mike Prince" },
@@ -15,8 +15,7 @@ dependencies = [
     "pydantic>=2.0.0",
     "python-jose>=3.3.0",
     "loguru>=0.7.0",
-    "aiohttp>=3.9.0",
-    "did-resolver>=0.1.0"
+    "aiohttp>=3.9.0"
 ]
 requires-python = ">=3.9"
 readme = "README.md"
