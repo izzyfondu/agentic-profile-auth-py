@@ -88,7 +88,17 @@ async def handle_authorization(
     except Exception as e:
         raise ValueError(f"Failed to parse agentic token: {str(e)} token: {auth_token}")
     
-    challenge_id = payload.get("challenge", {}).get("id")
+    # Handle both string and object challenge formats
+    challenge = payload.get("challenge")
+    if isinstance(challenge, str):
+        # If challenge is a string, treat it as the challenge ID
+        challenge_id = challenge
+    elif isinstance(challenge, dict):
+        # If challenge is an object, extract the ID
+        challenge_id = challenge.get("id")
+    else:
+        raise ValueError("Agent token missing payload.challenge or payload.challenge.id")
+    
     if not challenge_id:
         raise ValueError("Agent token missing payload.challenge.id")
     
@@ -149,7 +159,18 @@ async def validate_auth_token(
         raise ValueError("Missing 'attest.verificationId' from agentic JWS payload")
     
     expected_challenge = session.challenge
-    signed_challenge = challenge.get("secret")
+    
+    # Handle both string and object challenge formats
+    if isinstance(challenge, str):
+        # If challenge is a string, treat it as the challenge secret
+        signed_challenge = challenge
+        challenge_id = session.challenge_id
+    elif isinstance(challenge, dict):
+        # If challenge is an object, extract the secret
+        signed_challenge = challenge.get("secret")
+        challenge_id = challenge.get("id", session.challenge_id)
+    else:
+        raise ValueError("Invalid challenge format in JWS payload")
     
     if expected_challenge != signed_challenge:
         raise ValueError(f"Signed challenge is different than expected: {signed_challenge} != {expected_challenge}")
@@ -193,7 +214,7 @@ async def validate_auth_token(
         raise ValueError("Invalid signed challenge and attestation")
     
     session_updates = ClientAgentSessionUpdates(agent_did=agent_did, auth_token=auth_token)
-    await store.update_client_agent_session(challenge["id"], session_updates)
+    await store.update_client_agent_session(challenge_id, session_updates)
     
     return ClientAgentSession(**{**session.dict(), **session_updates.dict()})
 

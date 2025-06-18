@@ -11,7 +11,7 @@ class VerificationMethod(BaseModel):
     """Verification method from DID document"""
     id: str
     type: str
-    controller: str
+    controller: Optional[str] = None  # Made optional to handle real DID documents
     public_key_jwk: Optional[Dict[str, Any]] = Field(default=None, alias="publicKeyJwk")
     
     class Config:
@@ -37,7 +37,7 @@ class AgentService(Service):
 class AgenticProfile(BaseModel):
     """Agentic Profile extending DID document"""
     id: DID
-    name: str
+    name: Optional[str] = None  # Made optional to handle real DID documents
     verification_method: Optional[List[VerificationMethod]] = Field(default=None, alias="verificationMethod")
     service: Optional[List[AgentService]] = None
     ttl: Optional[int] = Field(default=86400)  # TTL in seconds, default is one day
@@ -57,7 +57,7 @@ class AgenticJwsHeader(BaseModel):
 
 class AgenticJwsPayload(BaseModel):
     """JWS payload for agentic authentication"""
-    challenge: Dict[str, str]
+    challenge: Union[str, Dict[str, str]]  # Can be string or object
     attest: Dict[str, str]
 
 class ClientAgentSession(BaseModel):
@@ -88,10 +88,8 @@ class InMemoryAgenticProfileStore:
     async def load_agentic_profile(self, did: str) -> Optional[AgenticProfile]:
         """
         Load an agentic profile from the store
-        
         Args:
             did: The DID to load
-            
         Returns:
             Optional[AgenticProfile]: The profile if found, None otherwise
         """
@@ -100,7 +98,6 @@ class InMemoryAgenticProfileStore:
     async def save_agentic_profile(self, profile: AgenticProfile) -> None:
         """
         Save an agentic profile to the store
-        
         Args:
             profile: The profile to save
         """

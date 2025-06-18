@@ -198,7 +198,12 @@ async def resolver_cache(store, parsed: ParsedDID, resolve: Callable[[], Awaitab
         return as_did_resolution_result(profile_dict)
     logger.debug(f"Cache miss for {parsed.did}, resolving...")
     result = await resolve()
-    if not getattr(result.get('didResolutionMetadata', {}), 'error', None) and result.get('didDocument'):
+    # Check if resolution was successful (no error and has document)
+    resolution_metadata = result.get('didResolutionMetadata', {})
+    has_error = resolution_metadata.get('error') is not None
+    has_document = result.get('didDocument') is not None
+    
+    if not has_error and has_document:
         # Convert dict to AgenticProfile if needed
         did_document = result['didDocument']
         if isinstance(did_document, dict):
