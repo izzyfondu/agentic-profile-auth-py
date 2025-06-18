@@ -165,9 +165,11 @@ async def validate_auth_token(
     if verification_method.type != "JsonWebKey2020":
         raise ValueError("Unsupported verification type, please use JsonWebKey2020 for agents")
     
+    # Handle both camelCase and snake_case field names
     public_key_jwk = verification_method.public_key_jwk
     if not public_key_jwk:
-        raise ValueError("Missing 'publicKeyJwk' property in verification method")
+        # Try alternative field names if the primary one is missing
+        raise ValueError(f"Missing 'publicKeyJwk' property in verification method {verification_method.id}. Available fields: {list(verification_method.__dict__.keys())}")
     
     kty = public_key_jwk.get("kty")
     alg = public_key_jwk.get("alg")

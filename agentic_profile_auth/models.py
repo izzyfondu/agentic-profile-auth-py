@@ -12,13 +12,19 @@ class VerificationMethod(BaseModel):
     id: str
     type: str
     controller: str
-    public_key_jwk: Optional[Dict[str, Any]] = None
+    public_key_jwk: Optional[Dict[str, Any]] = Field(default=None, alias="publicKeyJwk")
+    
+    class Config:
+        populate_by_name = True
 
 class Service(BaseModel):
     """Base service from DID document"""
     id: str
     type: str
     service_endpoint: str = Field(alias="serviceEndpoint")
+    
+    class Config:
+        populate_by_name = True
 
 class AgentService(Service):
     """Agent service with capability invocation"""
