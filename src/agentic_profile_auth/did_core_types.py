@@ -173,4 +173,22 @@ class InMemoryDIDCache:
         result = await resolve()
         if not getattr(result.didResolutionMetadata, 'error', None) == 'notFound':
             self.cache[parsed.did_url] = result
-        return result 
+        return result
+
+def as_did_resolution_result(did_document, content_type="application/json"):
+    return {
+        "didDocument": did_document,
+        "didDocumentMetadata": {},
+        "didResolutionMetadata": {"contentType": content_type}
+    }
+
+async def resolver_cache(store, parsed: ParsedDID, resolve: Callable[[], Awaitable[DIDResolutionResult]]) -> DIDResolutionResult:
+    if parsed.params and parsed.params.get('no-cache') == 'true':
+        return await resolve()
+    profile = await store.load_agentic_profile(parsed.did)
+    if profile:
+        return as_did_resolution_result(profile)
+    result = await resolve()
+    if not getattr(result.get('didResolutionMetadata', {}), 'error', None) and result.get('didDocument'):
+        await store.save_agentic_profile(result['didDocument'])
+    return result 

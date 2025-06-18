@@ -5,6 +5,7 @@ from urllib.parse import urlparse
 import aiohttp
 from loguru import logger
 from pydantic import BaseModel
+import functools
 
 from .models import AgenticProfile, DID, VerificationMethod, Service
 from .did_core_types import (
@@ -13,7 +14,7 @@ from .did_core_types import (
     DIDDocumentMetadata,
     ParsedDID,
     parse_did,
-    InMemoryDIDCache
+    resolver_cache
 )
 
 # Type aliases
@@ -52,36 +53,6 @@ def as_did_resolution_result(did_document: Dict[str, Any], content_type: str = "
         "didResolutionMetadata": {"contentType": content_type}
     }
 
-def create_resolver_cache(store: AgenticProfileStore) -> Callable[[ParsedDID, Callable[[], Awaitable[DIDResolutionResult]]], Awaitable[DIDResolutionResult]]:
-    """
-    Create a resolver cache middleware
-    
-    Args:
-        store: The AgenticProfileStore to use for caching
-        
-    Returns:
-        A cache middleware function
-    """
-    async def cache_middleware(parsed: ParsedDID, resolve: Callable[[], Awaitable[DIDResolutionResult]]) -> DIDResolutionResult:
-        # Check for no-cache parameter
-        if parsed.params and parsed.params.get('no-cache') == 'true':
-            return await resolve()  # required by DID spec
-        
-        # Check cache first
-        profile = await store.load_agentic_profile(parsed.did)
-        if profile:
-            logger.debug(f"Cache hit for DID {parsed.did}")
-            return as_did_resolution_result(profile.model_dump())
-        
-        # Resolve and cache
-        result = await resolve()
-        if not result.get("didResolutionMetadata", {}).get("error") and result.get("didDocument"):
-            await store.save_agentic_profile(AgenticProfile(**result["didDocument"]))
-        
-        return result
-    
-    return cache_middleware
-
 class HttpDidResolver(DidResolver):
     """
     HTTP-based DID resolver that uses the did-resolver library
@@ -109,7 +80,7 @@ class HttpDidResolver(DidResolver):
         self._own_session = session is None
         self._store = store
         self._registry = registry or {}
-        self._cache = create_resolver_cache(store) if store else None
+        self._cache = functools.partial(resolver_cache, store) if store else None
     
     async def __aenter__(self):
         """Create a new session if one wasn't provided"""
