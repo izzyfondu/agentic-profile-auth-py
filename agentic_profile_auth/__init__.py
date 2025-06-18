@@ -32,8 +32,6 @@ from .server_authentication import (
     AGENTIC_CHALLENGE_TYPE
 )
 
-from .did_resolver import HttpDidResolver
-
 __version__ = "0.6.0"
 
 __all__ = [
@@ -53,9 +51,6 @@ __all__ = [
     # Protocols
     "ClientAgentSessionStore",
     "DidResolver",
-    
-    # Implementations
-    "HttpDidResolver",
     
     # Functions
     "verify",

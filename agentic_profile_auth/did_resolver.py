@@ -63,7 +63,7 @@ class HttpDidResolver(DidResolver):
     def __init__(
         self,
         session: Optional[aiohttp.ClientSession] = None,
-        store: Optional[AgenticProfileStore] = None,
+        store: Optional[Any] = None,
         registry: Optional[Dict[str, ResolverRegistry]] = None
     ):
         """
@@ -72,7 +72,7 @@ class HttpDidResolver(DidResolver):
         Args:
             session: Optional aiohttp ClientSession to use for HTTP requests.
                     If not provided, a new session will be created.
-            store: Optional AgenticProfileStore for caching resolved profiles.
+            store: Optional store for caching resolved profiles.
                   If not provided, no caching will be used.
             registry: Optional dictionary of method-specific resolvers.
         """
@@ -152,7 +152,7 @@ class HttpDidResolver(DidResolver):
             }
 
 def create_did_resolver(
-    store: Optional[AgenticProfileStore] = None,
+    store: Optional[Any] = None,
     session: Optional[aiohttp.ClientSession] = None,
     registry: Optional[Dict[str, ResolverRegistry]] = None
 ) -> HttpDidResolver:
@@ -160,7 +160,7 @@ def create_did_resolver(
     Create a DID resolver with optional caching
     
     Args:
-        store: Optional AgenticProfileStore for caching
+        store: Optional store for caching
         session: Optional aiohttp ClientSession for HTTP requests
         registry: Optional dictionary of method-specific resolvers
         
