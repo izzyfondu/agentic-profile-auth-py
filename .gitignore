@@ -1,0 +1,47 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+ENV/
+env/
+test_env/
+final_test/
+
+# Pytest cache
+.pytest_cache/
+
+# IDE/editor configs
+.vscode/
+.idea/
+*.swp
+
+# MacOS
+.DS_Store
+
+# Test/build output
+*.log
+*.coverage
+htmlcov/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/ 
